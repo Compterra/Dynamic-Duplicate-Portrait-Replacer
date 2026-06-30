@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.1.1
+
+- Expands the default faction blacklist for mod factions with distinctive portrait sets.
+- Adds Hiver Swarm, HMI Supervillains Fang Society, Emergent Threats, and Emergent Threats IX Revival faction IDs to the default protection list.
+
 ## 0.1.0
 
 - Initial release.

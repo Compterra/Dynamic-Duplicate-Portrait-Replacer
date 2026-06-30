@@ -10,7 +10,21 @@
     "uaf_automata",
     "avali_explorer",
     "hiver",
-    "fang"
+    "fang",
+    "asm_relic",
+    "diamond_nexus",
+    "vantage_group",
+    "vice_diktat_navy",
+    "vice_light_of_ludd",
+    "vice_lions_guard",
+    "vice_project_mayfly",
+    "ix_battlegroup",
+    "ix_core",
+    "ix_marzanna",
+    "ix_trinity",
+    "ix_trinity_asm",
+    "ix_remnant_hvb",
+    "ix_comsec"
   ],
   "roleReplacementChances": {
     "generic": 0.25,
