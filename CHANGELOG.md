@@ -1,5 +1,9 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.1.3
+
+- Adds LunaLib help text explaining how to edit the faction blacklist.
+
 ## 0.1.2
 
 - Fixes the LunaLib faction blacklist setting so it is editable in-game.
