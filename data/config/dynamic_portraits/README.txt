@@ -1,5 +1,5 @@
 onlyReplaceDuplicateVanillaPortraits controls the default philosophy of the mod.
-When true, the first eligible use of a vanilla portrait is preserved, and only later duplicate uses become eligible for replacement.
+When true, the first eligible use of a portrait is preserved, and only later duplicate uses become eligible for replacement.
 
 If LunaLib is enabled, the in-game LunaLib menu overrides the matching values in settings.json.
 The factionRoles map remains JSON-only so modded faction support can stay explicit and readable.
@@ -14,6 +14,7 @@ LunaLib keeps this recommended list behind a toggle, then adds any extra faction
 duplicateSourceMode controls what counts as the duplicate source.
 vanillaTopLevel means only portraits directly under graphics/portraits are counted, which is how vanilla human portraits are normally referenced.
 allPortraits means any eligible portrait path can be counted for duplicate cleanup.
+allPortraits is the default so faction mods with tiny portrait pools, such as two male and two female faces, get meaningful duplicate cleanup.
 
 defaultReplacementChance controls how often an eligible officer gets a Dynamic Portraits image when their role does not have a specific chance.
 

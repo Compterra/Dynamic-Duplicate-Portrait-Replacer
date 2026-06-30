@@ -2,8 +2,8 @@ fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValu
 dp_core_header,Core Behavior,Header,Core Behavior,,,,,Core
 dp_only_replace_duplicates,Only replace duplicate vanilla portraits,Boolean,true,,"Preserves the first use of a vanilla-style portrait. Later duplicate uses can be replaced.",,,Core
 dp_protect_unmapped_factions,Protect unmapped factions,Boolean,false,,"Leaves factions not listed in Dynamic Portraits' factionRoles map unchanged. Disabled by default so mod factions can participate unless blacklisted.",,,Core
-dp_duplicate_source_mode,Duplicate source mode,Radio,vanillaTopLevel,"vanillaTopLevel, allPortraits","vanillaTopLevel counts portraits directly under graphics/portraits. allPortraits counts any eligible portrait path.",,,Core
-dp_default_replacement_chance,Default replacement chance,Double,0.35,,"Fallback chance that an eligible duplicate is replaced when its role does not have a specific chance.",0,1,Core
+dp_duplicate_source_mode_v2,Duplicate source mode,Radio,allPortraits,"vanillaTopLevel, allPortraits","vanillaTopLevel counts portraits directly under graphics/portraits. allPortraits counts any eligible portrait path.",,,Core
+dp_default_replacement_chance_v2,Default replacement chance,Double,1.0,,"Fallback chance that an eligible duplicate is replaced when its role does not have a specific chance.",0,1,Core
 dp_blacklist_help,Blacklist Help,Text,"The recommended blacklist is built in. Add only extra faction IDs below. Separate IDs with commas or spaces.",,,,,Core
 dp_blacklist_list_core,Recommended IDs,Text,"Core defaults: uaf, uaf_november, uaf_mimic, uaf_automata, avali_explorer, hiver, fang.",,,,,Core
 dp_blacklist_list_et,Emergent Threats IDs,Text,"Emergent Threats: asm_relic, diamond_nexus, vantage_group, vice_diktat_navy, vice_light_of_ludd, vice_lions_guard, vice_project_mayfly.",,,,,Core
@@ -11,7 +11,7 @@ dp_blacklist_list_ix,IX Revival IDs,Text,"IX Revival: ix_battlegroup, ix_core, i
 dp_use_recommended_blacklist,Use recommended blacklist,Boolean,true,,"Keeps known non-human or portrait-heavy mod factions protected. Turn this off only if you want to manage the blacklist yourself.",,,Core
 dp_extra_blacklisted_factions,Additional blacklist IDs,String,,,"Extra faction IDs Dynamic Portraits should never alter. Example: some_faction, other_faction",,,Core
 dp_role_header,Role Replacement Chances,Header,Role Replacement Chances,,,,,Role Chances
-dp_role_generic,Generic replacement chance,Double,0.25,,Chance for eligible duplicate generic officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_generic_v2,Generic replacement chance,Double,1.0,,Chance for eligible duplicate generic or unmapped-faction officers to receive a Dynamic Portraits image.,0,1,Role Chances
 dp_role_hegemony,Hegemony replacement chance,Double,0.25,,Chance for eligible duplicate Hegemony officers to receive a Dynamic Portraits image.,0,1,Role Chances
 dp_role_lions_guard,Lions Guard replacement chance,Double,0.35,,Chance for eligible duplicate Lions Guard officers to receive a Dynamic Portraits image.,0,1,Role Chances
 dp_role_luddic,Luddic replacement chance,Double,0.25,,Chance for eligible duplicate Luddic officers to receive a Dynamic Portraits image.,0,1,Role Chances

@@ -2,7 +2,7 @@
 
 A Starsector utility mod that reduces repeated generated officer portraits without taking over every portrait in a modded game.
 
-By default, the mod preserves the first use of a vanilla-style portrait and only considers later duplicates for replacement. Mod factions can participate without explicit mapping, while the recommended blacklist protects factions with strong portrait identities of their own.
+By default, the mod preserves the first use of a portrait and aggressively replaces later duplicates, including duplicates from mod faction portrait lists. Mod factions can participate without explicit mapping, while the recommended blacklist protects factions with strong portrait identities of their own.
 
 ## Features
 

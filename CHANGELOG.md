@@ -1,5 +1,11 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.1.9
+
+- Strengthens default duplicate cleanup for mod factions.
+- Counts duplicates across all portrait paths by default and replaces generic/unmapped duplicate portraits at 100%.
+- Refreshes the LunaLib setting IDs for the stronger defaults so old cached values do not keep the previous conservative behavior.
+
 ## 0.1.8
 
 - Allows unmapped mod factions to participate by default, relying on the recommended blacklist for faction-specific protection.

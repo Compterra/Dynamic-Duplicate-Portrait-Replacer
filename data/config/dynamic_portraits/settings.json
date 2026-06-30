@@ -1,8 +1,8 @@
 {
   "onlyReplaceDuplicateVanillaPortraits": true,
   "protectUnmappedFactions": false,
-  "duplicateSourceMode": "vanillaTopLevel",
-  "defaultReplacementChance": 0.35,
+  "duplicateSourceMode": "allPortraits",
+  "defaultReplacementChance": 1.0,
   "blacklistedFactionIds": [
     "uaf",
     "uaf_november",
@@ -27,7 +27,7 @@
     "ix_comsec"
   ],
   "roleReplacementChances": {
-    "generic": 0.25,
+    "generic": 1.0,
     "hegemony": 0.25,
     "lions_guard": 0.35,
     "luddic": 0.25,

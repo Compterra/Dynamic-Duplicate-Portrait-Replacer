@@ -268,14 +268,14 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         }
 
         static DynamicPortraitsSettings load() {
-            DynamicPortraitsSettings settings = new DynamicPortraitsSettings(true, false, "vanillaTopLevel", DEFAULT_REPLACEMENT_CHANCE);
+            DynamicPortraitsSettings settings = new DynamicPortraitsSettings(true, false, "allPortraits", 1f);
             try {
                 JSONObject json = Global.getSettings().loadJSON("data/config/dynamic_portraits/settings.json", MOD_ID);
                 settings = new DynamicPortraitsSettings(
                         json.optBoolean("onlyReplaceDuplicateVanillaPortraits", true),
                         json.optBoolean("protectUnmappedFactions", false),
-                        json.optString("duplicateSourceMode", "vanillaTopLevel"),
-                        (float) json.optDouble("defaultReplacementChance", DEFAULT_REPLACEMENT_CHANCE)
+                        json.optString("duplicateSourceMode", "allPortraits"),
+                        (float) json.optDouble("defaultReplacementChance", 1f)
                 );
                 settings.loadBlacklistedFactionIds(json.optJSONArray("blacklistedFactionIds"));
                 settings.rememberRecommendedBlacklistedFactionIds();
@@ -425,12 +425,12 @@ public class DynamicPortraitsManager implements EveryFrameScript {
                     protectUnmappedFactions = protectUnmapped.booleanValue();
                 }
 
-                String sourceMode = getLunaString("dp_duplicate_source_mode");
+                String sourceMode = getLunaString("dp_duplicate_source_mode_v2");
                 if (sourceMode != null && sourceMode.trim().length() > 0) {
                     duplicateSourceMode = sourceMode.trim();
                 }
 
-                Float defaultChance = getLunaFloat("dp_default_replacement_chance");
+                Float defaultChance = getLunaFloat("dp_default_replacement_chance_v2");
                 if (defaultChance != null) {
                     defaultReplacementChance = clamp(defaultChance.floatValue(), 0f, 1f);
                 }
@@ -447,7 +447,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
                     addBlacklistedFactionIds(extraFactionBlacklist);
                 }
 
-                applyLunaRoleChance("generic", "dp_role_generic");
+                applyLunaRoleChance("generic", "dp_role_generic_v2");
                 applyLunaRoleChance("hegemony", "dp_role_hegemony");
                 applyLunaRoleChance("lions_guard", "dp_role_lions_guard");
                 applyLunaRoleChance("luddic", "dp_role_luddic");
