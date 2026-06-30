@@ -1,6 +1,6 @@
 {
   "onlyReplaceDuplicateVanillaPortraits": true,
-  "protectUnmappedFactions": true,
+  "protectUnmappedFactions": false,
   "duplicateSourceMode": "vanillaTopLevel",
   "defaultReplacementChance": 0.35,
   "blacklistedFactionIds": [

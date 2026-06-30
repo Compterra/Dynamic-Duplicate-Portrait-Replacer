@@ -1,5 +1,9 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.1.8
+
+- Allows unmapped mod factions to participate by default, relying on the recommended blacklist for faction-specific protection.
+
 ## 0.1.7
 
 - Adds bundled portraits to the player faction portrait lists so they appear in the new-game portrait picker.

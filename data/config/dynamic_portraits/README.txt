@@ -5,7 +5,7 @@ If LunaLib is enabled, the in-game LunaLib menu overrides the matching values in
 The factionRoles map remains JSON-only so modded faction support can stay explicit and readable.
 
 protectUnmappedFactions leaves factions not listed in factionRoles unchanged.
-This is recommended for mod-heavy games because many faction mods ship their own portraits.
+This is disabled by default so ordinary mod factions can participate. Use the blacklist for factions that should keep their own portraits.
 
 blacklistedFactionIds is a list of faction ids Dynamic Portraits should never alter.
 This is best for protecting mod factions that already ship with their own portrait set.

@@ -268,12 +268,12 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         }
 
         static DynamicPortraitsSettings load() {
-            DynamicPortraitsSettings settings = new DynamicPortraitsSettings(true, true, "vanillaTopLevel", DEFAULT_REPLACEMENT_CHANCE);
+            DynamicPortraitsSettings settings = new DynamicPortraitsSettings(true, false, "vanillaTopLevel", DEFAULT_REPLACEMENT_CHANCE);
             try {
                 JSONObject json = Global.getSettings().loadJSON("data/config/dynamic_portraits/settings.json", MOD_ID);
                 settings = new DynamicPortraitsSettings(
                         json.optBoolean("onlyReplaceDuplicateVanillaPortraits", true),
-                        json.optBoolean("protectUnmappedFactions", true),
+                        json.optBoolean("protectUnmappedFactions", false),
                         json.optString("duplicateSourceMode", "vanillaTopLevel"),
                         (float) json.optDouble("defaultReplacementChance", DEFAULT_REPLACEMENT_CHANCE)
                 );
