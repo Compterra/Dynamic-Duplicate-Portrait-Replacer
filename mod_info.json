@@ -1,13 +1,13 @@
 {
   "id": "dynamic_portraits",
-  "name": "Dynamic Portraits",
+  "name": "Dynamic Duplicate Portrait Replacer",
   "author": "Computica",
   "version": {
     "major": 0,
     "minor": 1,
     "patch": 0
   },
-  "description": "Dynamically assigns officer portraits from organized portrait pools, reducing duplicate faces while respecting faction and gender where portrait sets are available.",
+  "description": "Replaces duplicate generated officer portraits from organized portrait pools while preserving vanilla and mod faction identity by default.",
   "gameVersion": "0.98a-RC8",
   "jars": [
     "jars/DynamicPortraits.jar"
