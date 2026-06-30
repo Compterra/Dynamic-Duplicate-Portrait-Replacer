@@ -4,9 +4,12 @@ import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ModSpecAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CommDirectoryAPI;
+import com.fs.starfarer.api.campaign.CommDirectoryEntryAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorAPI;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.OfficerDataAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
@@ -18,19 +21,23 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class DynamicPortraitsManager implements EveryFrameScript {
     private static final Logger LOG = Global.getLogger(DynamicPortraitsManager.class);
 
     private static final String MOD_ID = "dynamic_portraits";
     private static final String ASSIGNED_KEY = "$dynamic_portraits_assigned";
+    private static final String ASSIGNED_VERSION_KEY = "$dynamic_portraits_assigned_version";
     private static final String USAGE_KEY_PREFIX = "$dynamic_portraits_use_";
     private static final String ORIGINAL_USAGE_KEY_PREFIX = "$dynamic_portraits_original_use_";
+    private static final int CURRENT_CLEANUP_VERSION = 2;
     private static final String GENERIC_ROLE = "generic";
     private static final float SCAN_INTERVAL_SECONDS = 5f;
     private static final float DEFAULT_REPLACEMENT_CHANCE = 0.35f;
@@ -40,6 +47,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
     private final Random random = new Random();
     private float elapsed = SCAN_INTERVAL_SECONDS;
     private int roundRobinLocationIndex = 0;
+    private int roundRobinMarketIndex = 0;
 
     public DynamicPortraitsManager() {
         portraitPools = PortraitPools.load();
@@ -86,6 +94,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         scanFleet(sector.getPlayerFleet());
         scanLocation(sector.getCurrentLocation());
         scanNextLocation(sector);
+        scanNextMarket(sector);
     }
 
     private void scanAllLocations() {
@@ -98,6 +107,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         for (LocationAPI location : sector.getAllLocations()) {
             scanLocation(location);
         }
+        scanAllMarkets(sector);
     }
 
     private void scanNextLocation(SectorAPI sector) {
@@ -112,6 +122,39 @@ public class DynamicPortraitsManager implements EveryFrameScript {
 
         scanLocation(locations.get(roundRobinLocationIndex));
         roundRobinLocationIndex++;
+    }
+
+    private void scanAllMarkets(SectorAPI sector) {
+        if (sector == null || sector.getEconomy() == null) {
+            return;
+        }
+
+        List<MarketAPI> markets = sector.getEconomy().getMarketsCopy();
+        if (markets == null) {
+            return;
+        }
+
+        for (MarketAPI market : markets) {
+            scanMarket(market);
+        }
+    }
+
+    private void scanNextMarket(SectorAPI sector) {
+        if (sector == null || sector.getEconomy() == null) {
+            return;
+        }
+
+        List<MarketAPI> markets = sector.getEconomy().getMarketsCopy();
+        if (markets == null || markets.isEmpty()) {
+            return;
+        }
+
+        if (roundRobinMarketIndex >= markets.size()) {
+            roundRobinMarketIndex = 0;
+        }
+
+        scanMarket(markets.get(roundRobinMarketIndex));
+        roundRobinMarketIndex++;
     }
 
     private void scanLocation(LocationAPI location) {
@@ -143,29 +186,70 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         assignPortrait(fleet.getCommander());
     }
 
+    private void scanMarket(MarketAPI market) {
+        if (market == null) {
+            return;
+        }
+
+        assignPortrait(market.getAdmin());
+
+        List<PersonAPI> people = market.getPeopleCopy();
+        if (people != null) {
+            for (PersonAPI person : people) {
+                assignPortrait(person);
+            }
+        }
+
+        CommDirectoryAPI directory = market.getCommDirectory();
+        if (directory == null) {
+            return;
+        }
+
+        List<CommDirectoryEntryAPI> entries = directory.getEntriesCopy();
+        if (entries == null) {
+            return;
+        }
+
+        for (CommDirectoryEntryAPI entry : entries) {
+            if (entry != null && entry.getEntryData() instanceof PersonAPI) {
+                assignPortrait((PersonAPI) entry.getEntryData());
+            }
+        }
+    }
+
     private void assignPortrait(PersonAPI person) {
         if (!canAssignPortrait(person)) {
             return;
         }
 
+        String normalizedPortrait = normalizePortraitPath(person.getPortraitSprite());
+        if (portraitPools.contains(normalizedPortrait)) {
+            markProcessed(person);
+            return;
+        }
+
+        if (isCurrentCleanupComplete(person)) {
+            return;
+        }
+
         if (settings.isFactionBlacklisted(person)) {
-            person.getMemoryWithoutUpdate().set(ASSIGNED_KEY, true);
+            markProcessed(person);
             return;
         }
 
         if (settings.isUnmappedFactionProtected(person)) {
-            person.getMemoryWithoutUpdate().set(ASSIGNED_KEY, true);
+            markProcessed(person);
             return;
         }
 
         if (!isEligibleDuplicate(person)) {
-            person.getMemoryWithoutUpdate().set(ASSIGNED_KEY, true);
+            markProcessed(person);
             return;
         }
 
         String role = settings.getPortraitRole(person);
         if (random.nextFloat() >= settings.getReplacementChance(role)) {
-            person.getMemoryWithoutUpdate().set(ASSIGNED_KEY, true);
+            markProcessed(person);
             return;
         }
 
@@ -175,7 +259,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         }
 
         person.setPortraitSprite(portrait);
-        person.getMemoryWithoutUpdate().set(ASSIGNED_KEY, true);
+        markProcessed(person);
         incrementUsage(portrait);
     }
 
@@ -192,7 +276,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
             return false;
         }
 
-        String key = ORIGINAL_USAGE_KEY_PREFIX + Integer.toHexString(portrait.hashCode());
+        String key = ORIGINAL_USAGE_KEY_PREFIX + CURRENT_CLEANUP_VERSION + "_" + Integer.toHexString(portrait.hashCode());
         SectorAPI sector = Global.getSector();
         if (sector == null) {
             return false;
@@ -207,9 +291,6 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         if (person == null || person.isAICore() || person.isPlayer()) {
             return false;
         }
-        if (person.getMemoryWithoutUpdate().getBoolean(ASSIGNED_KEY)) {
-            return false;
-        }
 
         String portrait = person.getPortraitSprite();
         if (portrait == null || portrait.trim().isEmpty()) {
@@ -221,6 +302,15 @@ public class DynamicPortraitsManager implements EveryFrameScript {
             return false;
         }
         return normalized.contains("/portraits/");
+    }
+
+    private boolean isCurrentCleanupComplete(PersonAPI person) {
+        return person.getMemoryWithoutUpdate().getInt(ASSIGNED_VERSION_KEY) >= CURRENT_CLEANUP_VERSION;
+    }
+
+    private void markProcessed(PersonAPI person) {
+        person.getMemoryWithoutUpdate().set(ASSIGNED_KEY, true);
+        person.getMemoryWithoutUpdate().set(ASSIGNED_VERSION_KEY, CURRENT_CLEANUP_VERSION);
     }
 
     private static String normalizePortraitPath(String portrait) {
@@ -523,6 +613,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
 
     private static class PortraitPools {
         private final Map<String, Map<String, List<String>>> byRole = new LinkedHashMap<String, Map<String, List<String>>>();
+        private final Set<String> normalizedPortraits = new HashSet<String>();
 
         static PortraitPools load() {
             PortraitPools pools = new PortraitPools();
@@ -546,6 +637,10 @@ public class DynamicPortraitsManager implements EveryFrameScript {
 
         boolean isEmpty() {
             return byRole.isEmpty();
+        }
+
+        boolean contains(String portrait) {
+            return portrait != null && normalizedPortraits.contains(normalizePortraitPath(portrait));
         }
 
         String pick(String role, FullName.Gender gender, Random random) {
@@ -652,6 +747,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
                 rolePools.put(gender, portraits);
             }
             portraits.add(path);
+            normalizedPortraits.add(normalizePortraitPath(path));
         }
 
         private int countPortraits() {

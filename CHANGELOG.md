@@ -1,5 +1,11 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.1.10
+
+- Adds a versioned cleanup pass so existing saves can revisit duplicate portraits that older settings already marked as processed.
+- Scans market administrators, market people, and comm-directory entries in addition to fleets.
+- Prevents already-assigned Dynamic Portraits images from being re-rolled by later cleanup passes.
+
 ## 0.1.9
 
 - Strengthens default duplicate cleanup for mod factions.
