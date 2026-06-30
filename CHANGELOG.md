@@ -1,6 +1,6 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
-## 0.1.10
+## 0.2.1
 
 - Adds a versioned cleanup pass so existing saves can revisit duplicate portraits that older settings already marked as processed.
 - Scans market administrators, market people, and comm-directory entries in addition to fleets.
