@@ -1,0 +1,17 @@
+fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
+dp_core_header,Core Behavior,Header,Core Behavior,,,,,Core
+dp_only_replace_duplicates,Only replace duplicate vanilla portraits,Boolean,true,,"Preserves the first use of a vanilla-style portrait. Later duplicate uses can be replaced.",,,Core
+dp_protect_unmapped_factions,Protect unmapped factions,Boolean,true,,"Leaves factions not listed in Dynamic Portraits' factionRoles map unchanged. Recommended for mod-heavy games.",,,Core
+dp_duplicate_source_mode,Duplicate source mode,Radio,vanillaTopLevel,"vanillaTopLevel, allPortraits","vanillaTopLevel counts portraits directly under graphics/portraits. allPortraits counts any eligible portrait path.",,,Core
+dp_default_replacement_chance,Default replacement chance,Double,0.35,,"Fallback chance that an eligible duplicate is replaced when its role does not have a specific chance.",0,1,Core
+dp_blacklisted_factions,Blacklisted faction IDs,Text,"uaf, uaf_november, uaf_mimic, uaf_automata, avali_explorer",,"Faction IDs Dynamic Portraits should never alter. Separate entries with commas, spaces, semicolons, or new lines.",,,Core
+dp_role_header,Role Replacement Chances,Header,Role Replacement Chances,,,,,Role Chances
+dp_role_generic,Generic replacement chance,Double,0.25,,Chance for eligible duplicate generic officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_hegemony,Hegemony replacement chance,Double,0.25,,Chance for eligible duplicate Hegemony officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_lions_guard,Lions Guard replacement chance,Double,0.35,,Chance for eligible duplicate Lions Guard officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_luddic,Luddic replacement chance,Double,0.25,,Chance for eligible duplicate Luddic officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_mercenary,Mercenary replacement chance,Double,0.45,,Chance for eligible duplicate mercenary and independent officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_persean_league,Persean League replacement chance,Double,0.30,,Chance for eligible duplicate Persean League officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_pirate,Pirate replacement chance,Double,0.55,,Chance for eligible duplicate pirate officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_sindrian_diktat,Sindrian Diktat replacement chance,Double,0.35,,Chance for eligible duplicate Sindrian Diktat officers to receive a Dynamic Portraits image.,0,1,Role Chances
+dp_role_tritachyon,Tri-Tachyon replacement chance,Double,0.30,,Chance for eligible duplicate Tri-Tachyon officers to receive a Dynamic Portraits image.,0,1,Role Chances

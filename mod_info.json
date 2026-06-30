@@ -1,0 +1,16 @@
+{
+  "id": "dynamic_portraits",
+  "name": "Dynamic Portraits",
+  "author": "Computica",
+  "version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0
+  },
+  "description": "Dynamically assigns officer portraits from organized portrait pools, reducing duplicate faces while respecting faction and gender where portrait sets are available.",
+  "gameVersion": "0.98a-RC8",
+  "jars": [
+    "jars/DynamicPortraits.jar"
+  ],
+  "modPlugin": "data.scripts.DynamicPortraitsModPlugin"
+}

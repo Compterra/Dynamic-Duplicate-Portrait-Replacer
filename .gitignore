@@ -1,0 +1,6 @@
+jars/classes/
+*.class
+*.log
+*.tmp
+Thumbs.db
+desktop.ini

@@ -1,0 +1,39 @@
+{
+  "onlyReplaceDuplicateVanillaPortraits": true,
+  "protectUnmappedFactions": true,
+  "duplicateSourceMode": "vanillaTopLevel",
+  "defaultReplacementChance": 0.35,
+  "blacklistedFactionIds": [
+    "uaf",
+    "uaf_november",
+    "uaf_mimic",
+    "uaf_automata",
+    "avali_explorer"
+  ],
+  "roleReplacementChances": {
+    "generic": 0.25,
+    "hegemony": 0.25,
+    "lions_guard": 0.35,
+    "luddic": 0.25,
+    "mercenary": 0.45,
+    "persean_league": 0.30,
+    "pirate": 0.55,
+    "sindrian_diktat": 0.35,
+    "tritachyon": 0.30
+  },
+  "factionRoles": {
+    "hegemony": "hegemony",
+    "lions_guard": "lions_guard",
+    "luddic_church": "luddic",
+    "luddic_path": "luddic",
+    "knights_of_ludd": "luddic",
+    "persean": "persean_league",
+    "persean_league": "persean_league",
+    "pirates": "pirate",
+    "sindrian_diktat": "sindrian_diktat",
+    "tritachyon": "tritachyon",
+    "mercenary": "mercenary",
+    "independent": "mercenary",
+    "scavengers": "mercenary"
+  }
+}
