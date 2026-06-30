@@ -7,7 +7,7 @@ By default, the mod preserves the first use of a vanilla-style portrait and only
 ## Features
 
 - Dynamic officer portrait replacement from organized portrait pools.
-- Bundled portraits are selectable during new-game character creation.
+- Bundled portraits are selectable during new-game character creation through the player faction portrait list.
 - Duplicate-first behavior so vanilla portraits are preserved until repeated.
 - Faction and gender-aware portrait pools.
 - Optional LunaLib settings menu.

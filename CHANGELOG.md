@@ -1,5 +1,9 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.1.7
+
+- Adds bundled portraits to the player faction portrait lists so they appear in the new-game portrait picker.
+
 ## 0.1.6
 
 - Registers all bundled portrait images so they can be selected by the player during new-game character creation.
