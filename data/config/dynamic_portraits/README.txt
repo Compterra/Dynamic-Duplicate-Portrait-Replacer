@@ -9,6 +9,7 @@ This is recommended for mod-heavy games because many faction mods ship their own
 
 blacklistedFactionIds is a list of faction ids Dynamic Portraits should never alter.
 This is best for protecting mod factions that already ship with their own portrait set.
+LunaLib keeps this recommended list behind a toggle, then adds any extra faction IDs from its short additional blacklist field.
 
 duplicateSourceMode controls what counts as the duplicate source.
 vanillaTopLevel means only portraits directly under graphics/portraits are counted, which is how vanilla human portraits are normally referenced.

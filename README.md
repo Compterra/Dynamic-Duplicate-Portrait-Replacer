@@ -10,7 +10,7 @@ By default, the mod preserves the first use of a vanilla-style portrait and only
 - Duplicate-first behavior so vanilla portraits are preserved until repeated.
 - Faction and gender-aware portrait pools.
 - Optional LunaLib settings menu.
-- Faction blacklist for protecting mod factions.
+- Recommended faction blacklist for protecting mod factions, plus LunaLib additions for local overrides.
 - Version Checker support.
 
 ## Configuration
@@ -18,6 +18,8 @@ By default, the mod preserves the first use of a vanilla-style portrait and only
 LunaLib users can configure the main behavior in-game. Without LunaLib, settings are available in:
 
 `data/config/dynamic_portraits/settings.json`
+
+The LunaLib menu keeps the recommended blacklist as a toggle and provides a short field for extra faction IDs. Edit `settings.json` directly if you want to change the built-in recommended blacklist itself.
 
 To add support for another faction, add its faction ID to `factionRoles` and create a matching portrait role folder under:
 

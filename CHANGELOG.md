@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.1.4
+
+- Reworks the LunaLib blacklist controls so long default values no longer overflow the settings panel.
+- Adds a recommended-blacklist toggle and a short editable field for additional faction IDs.
+
 ## 0.1.3
 
 - Adds LunaLib help text explaining how to edit the faction blacklist.

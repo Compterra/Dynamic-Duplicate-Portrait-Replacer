@@ -257,6 +257,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         final Map<String, Float> roleReplacementChances = new HashMap<String, Float>();
         final Map<String, String> factionRoles = new HashMap<String, String>();
         final List<String> blacklistedFactionIds = new ArrayList<String>();
+        final List<String> recommendedBlacklistedFactionIds = new ArrayList<String>();
 
         private DynamicPortraitsSettings(boolean onlyReplaceDuplicateVanillaPortraits, boolean protectUnmappedFactions, String duplicateSourceMode, float defaultReplacementChance) {
             this.onlyReplaceDuplicateVanillaPortraits = onlyReplaceDuplicateVanillaPortraits;
@@ -277,6 +278,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
                         (float) json.optDouble("defaultReplacementChance", DEFAULT_REPLACEMENT_CHANCE)
                 );
                 settings.loadBlacklistedFactionIds(json.optJSONArray("blacklistedFactionIds"));
+                settings.rememberRecommendedBlacklistedFactionIds();
                 settings.loadRoleReplacementChances(json.optJSONObject("roleReplacementChances"));
                 settings.loadFactionRoles(json.optJSONObject("factionRoles"));
             } catch (Exception ex) {
@@ -360,6 +362,18 @@ public class DynamicPortraitsManager implements EveryFrameScript {
             }
         }
 
+        private void rememberRecommendedBlacklistedFactionIds() {
+            recommendedBlacklistedFactionIds.clear();
+            recommendedBlacklistedFactionIds.addAll(blacklistedFactionIds);
+        }
+
+        private void restoreRecommendedBlacklistedFactionIds() {
+            blacklistedFactionIds.clear();
+            for (String id : recommendedBlacklistedFactionIds) {
+                addBlacklistedFactionIds(id);
+            }
+        }
+
         private void loadRoleReplacementChances(JSONObject json) throws JSONException {
             if (json == null) {
                 return;
@@ -421,10 +435,16 @@ public class DynamicPortraitsManager implements EveryFrameScript {
                     defaultReplacementChance = clamp(defaultChance.floatValue(), 0f, 1f);
                 }
 
-                String factionBlacklist = getLunaString("dp_blacklisted_factions");
-                if (factionBlacklist != null) {
+                Boolean useRecommendedBlacklist = getLunaBoolean("dp_use_recommended_blacklist");
+                if (Boolean.FALSE.equals(useRecommendedBlacklist)) {
                     blacklistedFactionIds.clear();
-                    addBlacklistedFactionIds(factionBlacklist);
+                } else {
+                    restoreRecommendedBlacklistedFactionIds();
+                }
+
+                String extraFactionBlacklist = getLunaString("dp_extra_blacklisted_factions");
+                if (extraFactionBlacklist != null) {
+                    addBlacklistedFactionIds(extraFactionBlacklist);
                 }
 
                 applyLunaRoleChance("generic", "dp_role_generic");
