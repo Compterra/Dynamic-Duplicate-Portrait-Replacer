@@ -4,7 +4,7 @@ dp_only_replace_duplicates,Only replace duplicate vanilla portraits,Boolean,true
 dp_protect_unmapped_factions,Protect unmapped factions,Boolean,true,,"Leaves factions not listed in Dynamic Portraits' factionRoles map unchanged. Recommended for mod-heavy games.",,,Core
 dp_duplicate_source_mode,Duplicate source mode,Radio,vanillaTopLevel,"vanillaTopLevel, allPortraits","vanillaTopLevel counts portraits directly under graphics/portraits. allPortraits counts any eligible portrait path.",,,Core
 dp_default_replacement_chance,Default replacement chance,Double,0.35,,"Fallback chance that an eligible duplicate is replaced when its role does not have a specific chance.",0,1,Core
-dp_blacklisted_factions,Blacklisted faction IDs,Text,"uaf, uaf_november, uaf_mimic, uaf_automata, avali_explorer, hiver",,"Faction IDs Dynamic Portraits should never alter. Separate entries with commas, spaces, semicolons, or new lines.",,,Core
+dp_blacklisted_factions,Blacklisted faction IDs,Text,"uaf, uaf_november, uaf_mimic, uaf_automata, avali_explorer, hiver, fang",,"Faction IDs Dynamic Portraits should never alter. Separate entries with commas, spaces, semicolons, or new lines.",,,Core
 dp_role_header,Role Replacement Chances,Header,Role Replacement Chances,,,,,Role Chances
 dp_role_generic,Generic replacement chance,Double,0.25,,Chance for eligible duplicate generic officers to receive a Dynamic Portraits image.,0,1,Role Chances
 dp_role_hegemony,Hegemony replacement chance,Double,0.25,,Chance for eligible duplicate Hegemony officers to receive a Dynamic Portraits image.,0,1,Role Chances

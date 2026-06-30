@@ -9,7 +9,8 @@
     "uaf_mimic",
     "uaf_automata",
     "avali_explorer",
-    "hiver"
+    "hiver",
+    "fang"
   ],
   "roleReplacementChances": {
     "generic": 0.25,
