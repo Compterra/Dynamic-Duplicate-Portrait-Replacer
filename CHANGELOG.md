@@ -1,5 +1,11 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.2
+
+- Runs duplicate cleanup while paused so newly opened comm directories and interaction screens can be cleaned up.
+- Prioritizes markets in the player's current location before falling back to the broader market scan.
+- Shortens the scan interval and logs the first few replacements to make faction-specific cleanup easier to verify.
+
 ## 0.2.1
 
 - Adds a versioned cleanup pass so existing saves can revisit duplicate portraits that older settings already marked as processed.

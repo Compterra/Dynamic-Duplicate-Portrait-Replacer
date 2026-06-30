@@ -39,7 +39,8 @@ public class DynamicPortraitsManager implements EveryFrameScript {
     private static final String ORIGINAL_USAGE_KEY_PREFIX = "$dynamic_portraits_original_use_";
     private static final int CURRENT_CLEANUP_VERSION = 2;
     private static final String GENERIC_ROLE = "generic";
-    private static final float SCAN_INTERVAL_SECONDS = 5f;
+    private static final float SCAN_INTERVAL_SECONDS = 0.5f;
+    private static final int MAX_REPLACEMENT_LOGS = 50;
     private static final float DEFAULT_REPLACEMENT_CHANCE = 0.35f;
 
     private final PortraitPools portraitPools;
@@ -48,6 +49,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
     private float elapsed = SCAN_INTERVAL_SECONDS;
     private int roundRobinLocationIndex = 0;
     private int roundRobinMarketIndex = 0;
+    private int replacementLogs = 0;
 
     public DynamicPortraitsManager() {
         portraitPools = PortraitPools.load();
@@ -75,7 +77,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
 
     @Override
     public boolean runWhilePaused() {
-        return false;
+        return true;
     }
 
     @Override
@@ -93,6 +95,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
 
         scanFleet(sector.getPlayerFleet());
         scanLocation(sector.getCurrentLocation());
+        scanMarketsInLocation(sector, sector.getCurrentLocation());
         scanNextLocation(sector);
         scanNextMarket(sector);
     }
@@ -130,6 +133,21 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         }
 
         List<MarketAPI> markets = sector.getEconomy().getMarketsCopy();
+        if (markets == null) {
+            return;
+        }
+
+        for (MarketAPI market : markets) {
+            scanMarket(market);
+        }
+    }
+
+    private void scanMarketsInLocation(SectorAPI sector, LocationAPI location) {
+        if (sector == null || sector.getEconomy() == null || location == null) {
+            return;
+        }
+
+        List<MarketAPI> markets = sector.getEconomy().getMarkets(location);
         if (markets == null) {
             return;
         }
@@ -253,14 +271,27 @@ public class DynamicPortraitsManager implements EveryFrameScript {
             return;
         }
 
-        String portrait = portraitPools.pick(role, person.getGender(), random);
-        if (portrait == null) {
+        String replacement = portraitPools.pick(role, person.getGender(), random);
+        if (replacement == null) {
             return;
         }
 
-        person.setPortraitSprite(portrait);
+        person.setPortraitSprite(replacement);
         markProcessed(person);
-        incrementUsage(portrait);
+        incrementUsage(replacement);
+        logReplacement(person, normalizedPortrait, replacement, role);
+    }
+
+    private void logReplacement(PersonAPI person, String originalPortrait, String replacementPortrait, String role) {
+        if (replacementLogs >= MAX_REPLACEMENT_LOGS) {
+            return;
+        }
+
+        FactionAPI faction = person.getFaction();
+        String factionId = faction == null ? "unknown" : faction.getId();
+        LOG.info("Dynamic Portraits replaced duplicate portrait for faction [" + factionId + "] role [" + role + "]: "
+                + originalPortrait + " -> " + replacementPortrait);
+        replacementLogs++;
     }
 
     private boolean isEligibleDuplicate(PersonAPI person) {
