@@ -1,5 +1,9 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.1.6
+
+- Registers all bundled portrait images so they can be selected by the player during new-game character creation.
+
 ## 0.1.5
 
 - Adds LunaLib text rows showing the faction IDs included in the recommended blacklist.
