@@ -8,7 +8,8 @@
     "uaf_november",
     "uaf_mimic",
     "uaf_automata",
-    "avali_explorer"
+    "avali_explorer",
+    "hiver"
   ],
   "roleReplacementChances": {
     "generic": 0.25,
