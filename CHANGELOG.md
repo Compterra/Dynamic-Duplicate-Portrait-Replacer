@@ -1,5 +1,9 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.3.0
+
+- Promotes the current event-driven duplicate portrait cleanup build to the `0.3.0` release line.
+
 ## 0.2.10
 
 - Stops scanning every fleet member's ship captain, avoiding Starsector default-captain placeholders being materialized as staffed AI ships.
