@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.4
+
+- Reduces background scan cost by processing one current-location fleet and market slice per tick instead of sweeping the whole location.
+- Prioritizes the active interaction target so open market and patrol dialogs are still cleaned promptly while paused.
+
 ## 0.2.3
 
 - Simplifies mod-faction cleanup: non-blacklisted unmapped factions are cleaned directly instead of using vanilla first-duplicate preservation.

@@ -3,12 +3,15 @@ package data.scripts;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ModSpecAPI;
+import com.fs.starfarer.api.campaign.CampaignUIAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CommDirectoryAPI;
 import com.fs.starfarer.api.campaign.CommDirectoryEntryAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.OfficerDataAPI;
@@ -39,7 +42,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
     private static final String ORIGINAL_USAGE_KEY_PREFIX = "$dynamic_portraits_original_use_";
     private static final int CURRENT_CLEANUP_VERSION = 3;
     private static final String GENERIC_ROLE = "generic";
-    private static final float SCAN_INTERVAL_SECONDS = 0.5f;
+    private static final float SCAN_INTERVAL_SECONDS = 1f;
     private static final int MAX_REPLACEMENT_LOGS = 50;
     private static final float DEFAULT_REPLACEMENT_CHANCE = 0.35f;
 
@@ -48,7 +51,9 @@ public class DynamicPortraitsManager implements EveryFrameScript {
     private final Random random = new Random();
     private float elapsed = SCAN_INTERVAL_SECONDS;
     private int roundRobinLocationIndex = 0;
+    private int roundRobinFleetIndex = 0;
     private int roundRobinMarketIndex = 0;
+    private int roundRobinCurrentMarketIndex = 0;
     private int replacementLogs = 0;
 
     public DynamicPortraitsManager() {
@@ -93,9 +98,10 @@ public class DynamicPortraitsManager implements EveryFrameScript {
             return;
         }
 
+        scanInteractionTarget(sector);
         scanFleet(sector.getPlayerFleet());
-        scanLocation(sector.getCurrentLocation());
-        scanMarketsInLocation(sector, sector.getCurrentLocation());
+        scanNextFleetInLocation(sector.getCurrentLocation());
+        scanNextMarketInLocation(sector, sector.getCurrentLocation());
         scanNextLocation(sector);
         scanNextMarket(sector);
     }
@@ -123,7 +129,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
             roundRobinLocationIndex = 0;
         }
 
-        scanLocation(locations.get(roundRobinLocationIndex));
+        scanNextFleetInLocation(locations.get(roundRobinLocationIndex));
         roundRobinLocationIndex++;
     }
 
@@ -142,19 +148,22 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         }
     }
 
-    private void scanMarketsInLocation(SectorAPI sector, LocationAPI location) {
+    private void scanNextMarketInLocation(SectorAPI sector, LocationAPI location) {
         if (sector == null || sector.getEconomy() == null || location == null) {
             return;
         }
 
         List<MarketAPI> markets = sector.getEconomy().getMarkets(location);
-        if (markets == null) {
+        if (markets == null || markets.isEmpty()) {
             return;
         }
 
-        for (MarketAPI market : markets) {
-            scanMarket(market);
+        if (roundRobinCurrentMarketIndex >= markets.size()) {
+            roundRobinCurrentMarketIndex = 0;
         }
+
+        scanMarket(markets.get(roundRobinCurrentMarketIndex));
+        roundRobinCurrentMarketIndex++;
     }
 
     private void scanNextMarket(SectorAPI sector) {
@@ -187,6 +196,59 @@ public class DynamicPortraitsManager implements EveryFrameScript {
 
         for (CampaignFleetAPI fleet : fleets) {
             scanFleet(fleet);
+        }
+    }
+
+    private void scanNextFleetInLocation(LocationAPI location) {
+        if (location == null) {
+            return;
+        }
+
+        List<CampaignFleetAPI> fleets = location.getFleets();
+        if (fleets == null || fleets.isEmpty()) {
+            return;
+        }
+
+        if (roundRobinFleetIndex >= fleets.size()) {
+            roundRobinFleetIndex = 0;
+        }
+
+        scanFleet(fleets.get(roundRobinFleetIndex));
+        roundRobinFleetIndex++;
+    }
+
+    private void scanInteractionTarget(SectorAPI sector) {
+        if (sector == null) {
+            return;
+        }
+
+        CampaignUIAPI ui = sector.getCampaignUI();
+        if (ui == null || !ui.isShowingDialog()) {
+            return;
+        }
+
+        InteractionDialogAPI dialog = ui.getCurrentInteractionDialog();
+        if (dialog == null) {
+            return;
+        }
+
+        scanEntity(dialog.getInteractionTarget());
+    }
+
+    private void scanEntity(SectorEntityToken entity) {
+        if (entity == null) {
+            return;
+        }
+
+        if (entity instanceof CampaignFleetAPI) {
+            scanFleet((CampaignFleetAPI) entity);
+        }
+
+        assignPortrait(entity.getActivePerson());
+
+        MarketAPI market = entity.getMarket();
+        if (market != null) {
+            scanMarket(market);
         }
     }
 
