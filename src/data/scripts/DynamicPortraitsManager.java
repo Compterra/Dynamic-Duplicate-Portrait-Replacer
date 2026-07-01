@@ -1,15 +1,14 @@
 package data.scripts;
 
-import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ModSpecAPI;
-import com.fs.starfarer.api.campaign.CampaignUIAPI;
+import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
+import com.fs.starfarer.api.campaign.CampaignEventListener;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CommDirectoryAPI;
 import com.fs.starfarer.api.campaign.CommDirectoryEntryAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
-import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -32,7 +31,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-public class DynamicPortraitsManager implements EveryFrameScript {
+public class DynamicPortraitsManager extends BaseCampaignEventListener {
     private static final Logger LOG = Global.getLogger(DynamicPortraitsManager.class);
 
     private static final String MOD_ID = "dynamic_portraits";
@@ -42,21 +41,16 @@ public class DynamicPortraitsManager implements EveryFrameScript {
     private static final String ORIGINAL_USAGE_KEY_PREFIX = "$dynamic_portraits_original_use_";
     private static final int CURRENT_CLEANUP_VERSION = 3;
     private static final String GENERIC_ROLE = "generic";
-    private static final float SCAN_INTERVAL_SECONDS = 1f;
     private static final int MAX_REPLACEMENT_LOGS = 50;
     private static final float DEFAULT_REPLACEMENT_CHANCE = 0.35f;
 
     private final PortraitPools portraitPools;
     private final DynamicPortraitsSettings settings;
     private final Random random = new Random();
-    private float elapsed = SCAN_INTERVAL_SECONDS;
-    private int roundRobinLocationIndex = 0;
-    private int roundRobinFleetIndex = 0;
-    private int roundRobinMarketIndex = 0;
-    private int roundRobinCurrentMarketIndex = 0;
     private int replacementLogs = 0;
 
     public DynamicPortraitsManager() {
+        super(false);
         portraitPools = PortraitPools.load();
         settings = DynamicPortraitsSettings.load();
     }
@@ -67,172 +61,48 @@ public class DynamicPortraitsManager implements EveryFrameScript {
             return;
         }
 
-        if (!sector.hasTransientScript(DynamicPortraitsManager.class)) {
-            sector.addTransientScript(new DynamicPortraitsManager());
-            LOG.info("Dynamic Portraits campaign script installed");
+        sector.removeTransientScriptsOfClass(DynamicPortraitsManager.class);
+        if (hasManagerListener(sector)) {
+            return;
         }
 
-        new DynamicPortraitsManager().scanAllLocations();
+        sector.addTransientListener(new DynamicPortraitsManager());
+        LOG.info("Dynamic Portraits campaign listener installed");
     }
 
-    @Override
-    public boolean isDone() {
+    private static boolean hasManagerListener(SectorAPI sector) {
+        List<CampaignEventListener> listeners = sector.getAllListeners();
+        if (listeners == null) {
+            return false;
+        }
+        for (CampaignEventListener listener : listeners) {
+            if (listener instanceof DynamicPortraitsManager) {
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
-    public boolean runWhilePaused() {
-        return true;
+    public void reportShownInteractionDialog(InteractionDialogAPI dialog) {
+        if (portraitPools.isEmpty() || dialog == null) {
+            return;
+        }
+        scanEntity(dialog.getInteractionTarget());
     }
 
     @Override
-    public void advance(float amount) {
-        elapsed += amount;
-        if (elapsed < SCAN_INTERVAL_SECONDS) {
-            return;
-        }
-        elapsed = 0f;
-
-        SectorAPI sector = Global.getSector();
-        if (sector == null || portraitPools.isEmpty()) {
-            return;
-        }
-
-        scanInteractionTarget(sector);
-        scanFleet(sector.getPlayerFleet());
-        scanNextFleetInLocation(sector.getCurrentLocation());
-        scanNextMarketInLocation(sector, sector.getCurrentLocation());
-        scanNextLocation(sector);
-        scanNextMarket(sector);
-    }
-
-    private void scanAllLocations() {
-        SectorAPI sector = Global.getSector();
-        if (sector == null || portraitPools.isEmpty()) {
-            return;
-        }
-
-        scanFleet(sector.getPlayerFleet());
-        for (LocationAPI location : sector.getAllLocations()) {
-            scanLocation(location);
-        }
-        scanAllMarkets(sector);
-    }
-
-    private void scanNextLocation(SectorAPI sector) {
-        List<LocationAPI> locations = sector.getAllLocations();
-        if (locations == null || locations.isEmpty()) {
-            return;
-        }
-
-        if (roundRobinLocationIndex >= locations.size()) {
-            roundRobinLocationIndex = 0;
-        }
-
-        scanNextFleetInLocation(locations.get(roundRobinLocationIndex));
-        roundRobinLocationIndex++;
-    }
-
-    private void scanAllMarkets(SectorAPI sector) {
-        if (sector == null || sector.getEconomy() == null) {
-            return;
-        }
-
-        List<MarketAPI> markets = sector.getEconomy().getMarketsCopy();
-        if (markets == null) {
-            return;
-        }
-
-        for (MarketAPI market : markets) {
+    public void reportPlayerOpenedMarket(MarketAPI market) {
+        if (!portraitPools.isEmpty()) {
             scanMarket(market);
         }
     }
 
-    private void scanNextMarketInLocation(SectorAPI sector, LocationAPI location) {
-        if (sector == null || sector.getEconomy() == null || location == null) {
-            return;
+    @Override
+    public void reportPlayerOpenedMarketAndCargoUpdated(MarketAPI market) {
+        if (!portraitPools.isEmpty()) {
+            scanMarket(market);
         }
-
-        List<MarketAPI> markets = sector.getEconomy().getMarkets(location);
-        if (markets == null || markets.isEmpty()) {
-            return;
-        }
-
-        if (roundRobinCurrentMarketIndex >= markets.size()) {
-            roundRobinCurrentMarketIndex = 0;
-        }
-
-        scanMarket(markets.get(roundRobinCurrentMarketIndex));
-        roundRobinCurrentMarketIndex++;
-    }
-
-    private void scanNextMarket(SectorAPI sector) {
-        if (sector == null || sector.getEconomy() == null) {
-            return;
-        }
-
-        List<MarketAPI> markets = sector.getEconomy().getMarketsCopy();
-        if (markets == null || markets.isEmpty()) {
-            return;
-        }
-
-        if (roundRobinMarketIndex >= markets.size()) {
-            roundRobinMarketIndex = 0;
-        }
-
-        scanMarket(markets.get(roundRobinMarketIndex));
-        roundRobinMarketIndex++;
-    }
-
-    private void scanLocation(LocationAPI location) {
-        if (location == null) {
-            return;
-        }
-
-        List<CampaignFleetAPI> fleets = location.getFleets();
-        if (fleets == null) {
-            return;
-        }
-
-        for (CampaignFleetAPI fleet : fleets) {
-            scanFleet(fleet);
-        }
-    }
-
-    private void scanNextFleetInLocation(LocationAPI location) {
-        if (location == null) {
-            return;
-        }
-
-        List<CampaignFleetAPI> fleets = location.getFleets();
-        if (fleets == null || fleets.isEmpty()) {
-            return;
-        }
-
-        if (roundRobinFleetIndex >= fleets.size()) {
-            roundRobinFleetIndex = 0;
-        }
-
-        scanFleet(fleets.get(roundRobinFleetIndex));
-        roundRobinFleetIndex++;
-    }
-
-    private void scanInteractionTarget(SectorAPI sector) {
-        if (sector == null) {
-            return;
-        }
-
-        CampaignUIAPI ui = sector.getCampaignUI();
-        if (ui == null || !ui.isShowingDialog()) {
-            return;
-        }
-
-        InteractionDialogAPI dialog = ui.getCurrentInteractionDialog();
-        if (dialog == null) {
-            return;
-        }
-
-        scanEntity(dialog.getInteractionTarget());
     }
 
     private void scanEntity(SectorEntityToken entity) {

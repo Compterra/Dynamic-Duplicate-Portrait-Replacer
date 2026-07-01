@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.5
+
+- Replaces the paused polling script with an event-driven campaign listener.
+- Cleans portraits when the player opens an interaction dialog, comm screen target, or market, instead of scanning repeatedly while menus are open.
+
 ## 0.2.4
 
 - Reduces background scan cost by processing one current-location fleet and market slice per tick instead of sweeping the whole location.
