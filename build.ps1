@@ -19,6 +19,11 @@ $classpath = @(
     Join-Path $core "lwjgl_util.jar"
 ) -join ";"
 
+$lunaJar = Resolve-Path (Join-Path $mod "..\LunaLib-2.0.5\jars\LunaLib.jar") -ErrorAction SilentlyContinue
+if ($lunaJar) {
+    $classpath = "$classpath;$lunaJar"
+}
+
 $sources = Get-ChildItem -LiteralPath (Join-Path $mod "src") -Recurse -Filter *.java | ForEach-Object { $_.FullName }
 if (-not $sources) {
     throw "No Java source files found."

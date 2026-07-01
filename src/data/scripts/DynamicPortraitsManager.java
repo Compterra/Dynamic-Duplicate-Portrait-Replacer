@@ -1,7 +1,6 @@
 package data.scripts;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.ModSpecAPI;
 import com.fs.starfarer.api.campaign.BaseCampaignEventListener;
 import com.fs.starfarer.api.campaign.CampaignEventListener;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
@@ -15,12 +14,12 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.OfficerDataAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import lunalib.lunaSettings.LunaSettings;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -561,8 +560,16 @@ public class DynamicPortraitsManager extends BaseCampaignEventListener {
         }
 
         private static Object getLunaValue(String methodName, String key) throws Exception {
-            Class<?> lunaSettings = Class.forName("lunalib.lunaSettings.LunaSettings");
-            return lunaSettings.getMethod(methodName, String.class, String.class).invoke(null, MOD_ID, key);
+            if ("getBoolean".equals(methodName)) {
+                return LunaSettings.getBoolean(MOD_ID, key);
+            }
+            if ("getFloat".equals(methodName)) {
+                return LunaSettings.getFloat(MOD_ID, key);
+            }
+            if ("getString".equals(methodName)) {
+                return LunaSettings.getString(MOD_ID, key);
+            }
+            return null;
         }
 
         private void addBlacklistedFactionIds(String rawIds) {
@@ -606,14 +613,7 @@ public class DynamicPortraitsManager extends BaseCampaignEventListener {
             PortraitPools pools = new PortraitPools();
 
             try {
-                ModSpecAPI spec = Global.getSettings().getModManager().getModSpec(MOD_ID);
-                if (spec == null) {
-                    LOG.warn("Dynamic Portraits could not find its own mod spec");
-                    return pools;
-                }
-
-                File root = new File(spec.getPath(), "graphics" + File.separator + "portraits");
-                pools.loadFrom(root);
+                pools.loadFromSettingsJson();
                 LOG.info("Dynamic Portraits loaded " + pools.countPortraits() + " portraits in " + pools.byRole.size() + " role pools");
             } catch (Exception ex) {
                 LOG.warn("Dynamic Portraits failed to load portrait pools", ex);
@@ -671,54 +671,63 @@ public class DynamicPortraitsManager extends BaseCampaignEventListener {
             }
         }
 
-        private void loadFrom(File root) {
-            if (root == null || !root.isDirectory()) {
-                LOG.warn("Dynamic Portraits portrait root is missing: " + root);
+        private void loadFromSettingsJson() throws Exception {
+            JSONObject json = Global.getSettings().loadJSON("data/config/settings.json", MOD_ID);
+            if (json == null) {
                 return;
             }
 
-            File[] roleDirs = root.listFiles();
-            if (roleDirs == null) {
+            JSONObject graphics = json.optJSONObject("graphics");
+            if (graphics == null) {
                 return;
             }
 
-            for (File roleDir : roleDirs) {
-                if (!roleDir.isDirectory()) {
+            JSONObject portraits = graphics.optJSONObject("portraits");
+            if (portraits == null) {
+                return;
+            }
+
+            for (String key : toStringList(portraits.keys())) {
+                String path = portraits.optString(key, null);
+                if (path == null || !isImagePath(normalizePortraitPath(path))) {
                     continue;
                 }
-                loadRole(root, roleDir);
+                addFromGamePath(path);
             }
         }
 
-        private void loadRole(File root, File roleDir) {
-            File[] genderDirs = roleDir.listFiles();
-            if (genderDirs == null) {
+        private void addFromGamePath(String path) {
+            String normalized = normalizePortraitPath(path);
+            String marker = "graphics/portraits/";
+            int index = normalized.indexOf(marker);
+            if (index < 0) {
                 return;
             }
 
-            String role = normalizeRole(roleDir.getName());
-            for (File genderDir : genderDirs) {
-                if (!genderDir.isDirectory()) {
-                    continue;
-                }
+            String relative = normalized.substring(index + marker.length());
+            String[] parts = relative.split("/");
+            if (parts.length < 3) {
+                return;
+            }
 
-                String gender = normalizeGender(genderDir.getName());
-                if (gender == null) {
-                    continue;
-                }
+            String role = normalizeRole(parts[0]);
+            String gender = normalizeGender(parts[1]);
+            if (gender == null) {
+                return;
+            }
 
-                File[] files = genderDir.listFiles();
-                if (files == null) {
-                    continue;
-                }
+            add(role, gender, path);
+        }
 
-                for (File file : files) {
-                    if (!file.isFile() || !isImage(file.getName())) {
-                        continue;
-                    }
-                    add(role, gender, toGamePath(root, file));
+        private static List<String> toStringList(java.util.Iterator<?> iterator) {
+            List<String> result = new ArrayList<String>();
+            while (iterator != null && iterator.hasNext()) {
+                Object next = iterator.next();
+                if (next != null) {
+                    result.add(next.toString());
                 }
             }
+            return result;
         }
 
         private void add(String role, String gender, String path) {
@@ -745,16 +754,6 @@ public class DynamicPortraitsManager extends BaseCampaignEventListener {
                 }
             }
             return count;
-        }
-
-        private static boolean isImage(String name) {
-            String lower = name.toLowerCase(Locale.ROOT);
-            return lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg");
-        }
-
-        private static String toGamePath(File portraitRoot, File image) {
-            String relative = portraitRoot.toPath().relativize(image.toPath()).toString();
-            return "graphics/portraits/" + relative.replace('\\', '/');
         }
 
         private static String normalizeRole(String role) {

@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.6
+
+- Fixes Starsector script-sandbox compatibility by loading portrait pools from registered JSON data instead of scanning the filesystem.
+- Reads LunaLib settings through the normal LunaLib API instead of blocked reflection.
+
 ## 0.2.5
 
 - Replaces the paused polling script with an event-driven campaign listener.
