@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.CommDirectoryAPI;
 import com.fs.starfarer.api.campaign.CommDirectoryEntryAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -89,6 +90,7 @@ public class DynamicPortraitsManager extends BaseCampaignEventListener {
             return;
         }
         scanEntity(dialog.getInteractionTarget());
+        scanCurrentLocationFleets();
     }
 
     @Override
@@ -144,6 +146,30 @@ public class DynamicPortraitsManager extends BaseCampaignEventListener {
             if (member != null) {
                 assignPortrait(member.getCaptain());
             }
+        }
+    }
+
+    private void scanCurrentLocationFleets() {
+        SectorAPI sector = Global.getSector();
+        if (sector == null) {
+            return;
+        }
+
+        LocationAPI location = sector.getCurrentLocation();
+        if (location == null) {
+            return;
+        }
+
+        List<CampaignFleetAPI> fleets = location.getFleets();
+        if (fleets == null) {
+            return;
+        }
+
+        for (CampaignFleetAPI fleet : fleets) {
+            if (fleet == null || fleet.isPlayerFleet() || fleet.isDespawning() || !fleet.isAlive()) {
+                continue;
+            }
+            scanFleet(fleet);
         }
     }
 

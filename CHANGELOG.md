@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.9
+
+- Scans other NPC fleets in the current location when an interaction dialog opens, so multi-fleet comm directories can clean every listed contact instead of only the fleet being hailed.
+- Keeps the scan event-driven and skips the player fleet to avoid unnecessary background work or surprise player-officer changes.
+
 ## 0.2.8
 
 - Checks ship captains assigned directly to fleet members when the player opens a fleet interaction.
