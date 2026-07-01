@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.7
+
+- Adds four Valkyrian-style female portraits to the mercenary replacement pool.
+- Registers the new portraits for both Dynamic Portraits replacement and player new-game portrait selection.
+
 ## 0.2.6
 
 - Fixes Starsector script-sandbox compatibility by loading portrait pools from registered JSON data instead of scanning the filesystem.
