@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.10
+
+- Stops scanning every fleet member's ship captain, avoiding Starsector default-captain placeholders being materialized as staffed AI ships.
+- Ignores default placeholder people anywhere they are encountered.
+
 ## 0.2.9
 
 - Scans other NPC fleets in the current location when an interaction dialog opens, so multi-fleet comm directories can clean every listed contact instead of only the fleet being hailed.
