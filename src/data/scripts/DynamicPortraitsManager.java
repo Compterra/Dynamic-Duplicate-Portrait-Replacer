@@ -37,7 +37,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
     private static final String ASSIGNED_VERSION_KEY = "$dynamic_portraits_assigned_version";
     private static final String USAGE_KEY_PREFIX = "$dynamic_portraits_use_";
     private static final String ORIGINAL_USAGE_KEY_PREFIX = "$dynamic_portraits_original_use_";
-    private static final int CURRENT_CLEANUP_VERSION = 2;
+    private static final int CURRENT_CLEANUP_VERSION = 3;
     private static final String GENERIC_ROLE = "generic";
     private static final float SCAN_INTERVAL_SECONDS = 0.5f;
     private static final int MAX_REPLACEMENT_LOGS = 50;
@@ -255,12 +255,13 @@ public class DynamicPortraitsManager implements EveryFrameScript {
             return;
         }
 
+        boolean preservesFirstDuplicate = settings.preservesFirstDuplicate(person);
         if (settings.isUnmappedFactionProtected(person)) {
             markProcessed(person);
             return;
         }
 
-        if (!isEligibleDuplicate(person)) {
+        if (preservesFirstDuplicate && !isEligibleDuplicate(person)) {
             markProcessed(person);
             return;
         }
@@ -332,7 +333,11 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         if (normalized.contains("/characters/")) {
             return false;
         }
-        return normalized.contains("/portraits/");
+        return isImagePath(normalized);
+    }
+
+    private static boolean isImagePath(String path) {
+        return path != null && (path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg"));
     }
 
     private boolean isCurrentCleanupComplete(PersonAPI person) {
@@ -377,6 +382,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         float defaultReplacementChance;
         final Map<String, Float> roleReplacementChances = new HashMap<String, Float>();
         final Map<String, String> factionRoles = new HashMap<String, String>();
+        final Set<String> duplicatePreservedFactionIds = new HashSet<String>();
         final List<String> blacklistedFactionIds = new ArrayList<String>();
         final List<String> recommendedBlacklistedFactionIds = new ArrayList<String>();
 
@@ -422,11 +428,23 @@ public class DynamicPortraitsManager implements EveryFrameScript {
                 return false;
             }
 
+            return !isFactionMapped(person);
+        }
+
+        boolean isFactionMapped(PersonAPI person) {
             FactionAPI faction = person.getFaction();
             if (faction == null || faction.getId() == null) {
                 return false;
             }
-            return !factionRoles.containsKey(faction.getId().toLowerCase(Locale.ROOT));
+            return factionRoles.containsKey(faction.getId().toLowerCase(Locale.ROOT));
+        }
+
+        boolean preservesFirstDuplicate(PersonAPI person) {
+            FactionAPI faction = person.getFaction();
+            if (faction == null || faction.getId() == null) {
+                return false;
+            }
+            return duplicatePreservedFactionIds.contains(faction.getId().toLowerCase(Locale.ROOT));
         }
 
         boolean isDuplicateSource(String portrait) {
@@ -515,19 +533,25 @@ public class DynamicPortraitsManager implements EveryFrameScript {
         }
 
         private void addDefaultFactionRoles() {
-            factionRoles.put("hegemony", "hegemony");
-            factionRoles.put("lions_guard", "lions_guard");
-            factionRoles.put("luddic_church", "luddic");
-            factionRoles.put("luddic_path", "luddic");
-            factionRoles.put("knights_of_ludd", "luddic");
-            factionRoles.put("persean", "persean_league");
-            factionRoles.put("persean_league", "persean_league");
-            factionRoles.put("pirates", "pirate");
-            factionRoles.put("sindrian_diktat", "sindrian_diktat");
-            factionRoles.put("tritachyon", "tritachyon");
-            factionRoles.put("mercenary", "mercenary");
-            factionRoles.put("independent", "mercenary");
-            factionRoles.put("scavengers", "mercenary");
+            addDefaultFactionRole("hegemony", "hegemony");
+            addDefaultFactionRole("lions_guard", "lions_guard");
+            addDefaultFactionRole("luddic_church", "luddic");
+            addDefaultFactionRole("luddic_path", "luddic");
+            addDefaultFactionRole("knights_of_ludd", "luddic");
+            addDefaultFactionRole("persean", "persean_league");
+            addDefaultFactionRole("persean_league", "persean_league");
+            addDefaultFactionRole("pirates", "pirate");
+            addDefaultFactionRole("sindrian_diktat", "sindrian_diktat");
+            addDefaultFactionRole("tritachyon", "tritachyon");
+            addDefaultFactionRole("mercenary", "mercenary");
+            addDefaultFactionRole("independent", "mercenary");
+            addDefaultFactionRole("scavengers", "mercenary");
+        }
+
+        private void addDefaultFactionRole(String factionId, String role) {
+            String normalized = factionId.toLowerCase(Locale.ROOT);
+            factionRoles.put(normalized, role);
+            duplicatePreservedFactionIds.add(normalized);
         }
 
         private void applyLunaSettingsIfAvailable() {
@@ -596,7 +620,7 @@ public class DynamicPortraitsManager implements EveryFrameScript {
 
         private static Float getLunaFloat(String key) throws Exception {
             Object value = getLunaValue("getFloat", key);
-            return value instanceof Float ? (Float) value : null;
+            return value instanceof Number ? Float.valueOf(((Number) value).floatValue()) : null;
         }
 
         private static String getLunaString(String key) throws Exception {

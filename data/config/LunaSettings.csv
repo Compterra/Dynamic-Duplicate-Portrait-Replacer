@@ -1,6 +1,6 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 dp_core_header,Core Behavior,Header,Core Behavior,,,,,Core
-dp_only_replace_duplicates,Only replace duplicate vanilla portraits,Boolean,true,,"Preserves the first use of a vanilla-style portrait. Later duplicate uses can be replaced.",,,Core
+dp_only_replace_duplicates,Preserve first vanilla-style duplicate,Boolean,true,,"Preserves first use for built-in vanilla-style factions. Unmapped mod factions are cleaned directly unless blacklisted.",,,Core
 dp_protect_unmapped_factions,Protect unmapped factions,Boolean,false,,"Leaves factions not listed in Dynamic Portraits' factionRoles map unchanged. Disabled by default so mod factions can participate unless blacklisted.",,,Core
 dp_duplicate_source_mode_v2,Duplicate source mode,Radio,allPortraits,"vanillaTopLevel, allPortraits","vanillaTopLevel counts portraits directly under graphics/portraits. allPortraits counts any eligible portrait path.",,,Core
 dp_default_replacement_chance_v2,Default replacement chance,Double,1.0,,"Fallback chance that an eligible duplicate is replaced when its role does not have a specific chance.",0,1,Core

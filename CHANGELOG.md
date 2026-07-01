@@ -1,5 +1,11 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.3
+
+- Simplifies mod-faction cleanup: non-blacklisted unmapped factions are cleaned directly instead of using vanilla first-duplicate preservation.
+- Loosens portrait eligibility for mod faction portrait paths outside the normal `graphics/portraits` layout.
+- Fixes LunaLib numeric setting reads when values are returned as a generic number type.
+
 ## 0.2.2
 
 - Runs duplicate cleanup while paused so newly opened comm directories and interaction screens can be cleaned up.
