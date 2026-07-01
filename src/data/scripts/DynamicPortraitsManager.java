@@ -14,6 +14,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.OfficerDataAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import lunalib.lunaSettings.LunaSettings;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -133,6 +134,17 @@ public class DynamicPortraitsManager extends BaseCampaignEventListener {
         }
 
         assignPortrait(fleet.getCommander());
+
+        List<FleetMemberAPI> members = fleet.getFleetData().getMembersListWithFightersCopy();
+        if (members == null) {
+            return;
+        }
+
+        for (FleetMemberAPI member : members) {
+            if (member != null) {
+                assignPortrait(member.getCaptain());
+            }
+        }
     }
 
     private void scanMarket(MarketAPI market) {

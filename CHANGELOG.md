@@ -1,5 +1,10 @@
 # Dynamic Duplicate Portrait Replacer Changelog
 
+## 0.2.8
+
+- Checks ship captains assigned directly to fleet members when the player opens a fleet interaction.
+- Fixes mod and special fleets whose visible captains were not registered in the fleet officer list.
+
 ## 0.2.7
 
 - Adds four Valkyrian-style female portraits to the mercenary replacement pool.
